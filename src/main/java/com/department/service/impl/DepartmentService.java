@@ -23,7 +23,7 @@ public class DepartmentService implements IDepartmentService {
     public List<Department> getDepartments() {
         LOGGER.info("Fetching department list from database...");
         List<Department> departmentList = departmentRepository.findAll();
-        if(departmentList == null) {
+        if(departmentList == null || departmentList.size() == 0) {
             LOGGER.error("No Records found in the database!!");
             throw new ResourceNotFoundException("Department List is empty");
         }
