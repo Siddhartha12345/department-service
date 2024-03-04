@@ -8,7 +8,7 @@ public interface IDepartmentService {
 
     List<Department> getDepartments();
 
-    Department getDepartment(String deptId);
+    List<Department> getDepartmentsByDeptId(String deptId);
 
     Department getDepartmentByEmployeeId(String empId);
 

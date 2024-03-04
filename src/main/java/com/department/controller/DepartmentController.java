@@ -34,12 +34,12 @@ public class DepartmentController {
     }
 
     @GetMapping("/department/{deptId}")
-    public ResponseEntity<Department> getDepartment(@Pattern(regexp = DepartmentConstant.DEPT_ID_REGEXP, message = DepartmentConstant.DEPT_ID_REGEX_MSG)
+    public ResponseEntity<List<Department>> getDepartment(@Pattern(regexp = DepartmentConstant.DEPT_ID_REGEXP, message = DepartmentConstant.DEPT_ID_REGEX_MSG)
                                                     @PathVariable String deptId) {
         LOGGER.info("Execution started for fetching department object based on Dept ID");
-        Department department = departmentService.getDepartment(deptId);
-        LOGGER.info("Department object fetched successfully: {}", department);
-        return new ResponseEntity<>(department, HttpStatus.OK);
+        List<Department> departmentList = departmentService.getDepartmentsByDeptId(deptId);
+        LOGGER.info("Department object fetched successfully: {}", departmentList);
+        return new ResponseEntity<>(departmentList, HttpStatus.OK);
     }
 
     @PostMapping("/department")
