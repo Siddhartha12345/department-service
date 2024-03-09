@@ -8,6 +8,10 @@ public class DepartmentTestConstant {
 
     public static final String POST_DEPT_ENDPOINT = "/api/v1/department";
 
+    public static final String PUT_DEPT_ENDPOINT = "/api/v1/department";
+
+    public static final String DELETE_DEPT_ENDPOINT = "/api/v1/department/{empId}";
+
     public static final String GET_DEPT_BY_DEPTID_ENDPOINT = "/api/v1/department/{deptId}";
 
     public static final String GET_DEPT_BY_EMPID_ENDPOINT = "/api/v1/department/employee/{empId}";

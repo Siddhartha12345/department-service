@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class DepartmentService implements IDepartmentService {
@@ -23,7 +24,7 @@ public class DepartmentService implements IDepartmentService {
     public List<Department> getDepartments() {
         LOGGER.info("Fetching department list from database...");
         List<Department> departmentList = departmentRepository.findAll();
-        if(departmentList == null || departmentList.size() == 0) {
+        if(Objects.isNull(departmentList) || departmentList.size() == 0) {
             LOGGER.error("No Records found in the database!!");
             throw new ResourceNotFoundException("Department List is empty");
         }
@@ -37,7 +38,7 @@ public class DepartmentService implements IDepartmentService {
         List<Department> departments = departmentRepository.findByDepartmentId(deptId);
         if(departments == null) {
             LOGGER.error("No Records found for the given department ID: {}", deptId);
-            throw new ResourceNotFoundException("Department with given Dept ID is not found on the server: " + deptId);
+            throw new ResourceNotFoundException("Department with given Dept ID is not found on the DB: " + deptId);
         }
         LOGGER.info("Fetch operation completed!!");
         return departments;
@@ -48,13 +49,13 @@ public class DepartmentService implements IDepartmentService {
         LOGGER.info("Fetching department object for the given Emp ID: {}", empId);
         return departmentRepository.findById(empId).orElseThrow(() -> {
             LOGGER.error("No Records found for the given employee ID: {}", empId);
-            throw new ResourceNotFoundException("Department with given Emp ID is not found on the server: " + empId);
+            throw new ResourceNotFoundException("Department with given Emp ID is not found on the DB: " + empId);
         });
     }
 
     @Override
     public Department createDepartment(Department department) {
-        LOGGER.info("Saving department object on the server: {}", department);
+        LOGGER.info("Saving department object on the DB: {}", department);
         Department preparedDepartment = fetchDepartmentInfo(department);
         return departmentRepository.save(preparedDepartment);
     }
@@ -85,5 +86,28 @@ public class DepartmentService implements IDepartmentService {
         }
         LOGGER.info("Department object preparation done!!");
         return department;
+    }
+
+    @Override
+    public Department updateDepartment(Department department) {
+        LOGGER.info("Checking whether the department object exists on the DB for the given Emp ID: {}", department.getEmployeeId());
+        departmentRepository.findById(department.getEmployeeId()).orElseThrow(() -> {
+            LOGGER.error("No Records found for the given employee ID: {}", department.getEmployeeId());
+            throw new ResourceNotFoundException("Department with given Emp ID is not found on the DB: " + department.getEmployeeId());
+        });
+        Department preparedDepartment = fetchDepartmentInfo(department);
+        LOGGER.info("Record found | Updating department object on the DB for Emp ID: {}", department.getEmployeeId());
+        return departmentRepository.save(preparedDepartment);
+    }
+
+    @Override
+    public void deleteDepartment(String empId) {
+        LOGGER.info("Checking whether the department object exists on the DB for the given Emp ID: {}", empId);
+        departmentRepository.findById(empId).orElseThrow(() -> {
+            LOGGER.error("No Records found for the given employee ID: {}", empId);
+            throw new ResourceNotFoundException("Department with given Emp ID is not found on the DB: " + empId);
+        });
+        LOGGER.info("Record found | Deleting department object on the DB for Emp ID: {}", empId);
+        departmentRepository.deleteById(empId);
     }
 }

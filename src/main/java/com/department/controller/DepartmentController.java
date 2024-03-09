@@ -58,4 +58,21 @@ public class DepartmentController {
         LOGGER.info("Department object fetched successfully: {}", department);
         return new ResponseEntity<>(department, HttpStatus.OK);
     }
+
+    @PutMapping("/department")
+    public ResponseEntity<Department> updateDepartment(@Valid @RequestBody Department department) {
+        LOGGER.info("Execution started for updating department object...");
+        Department updatedDepartment = departmentService.updateDepartment(department);
+        LOGGER.info("Department object updated successfully: {}", updatedDepartment);
+        return new ResponseEntity<>(updatedDepartment, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/department/{empId}")
+    public ResponseEntity<Void> deleteDepartment(@Pattern(regexp = DepartmentConstant.EMP_ID_REGEXP, message = DepartmentConstant.EMP_ID_REGEX_MSG)
+                                                 @PathVariable String empId) {
+        LOGGER.info("Execution started for deleting department object...");
+        departmentService.deleteDepartment(empId);
+        LOGGER.info("Department object deleted successfully");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
