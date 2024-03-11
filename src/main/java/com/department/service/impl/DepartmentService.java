@@ -63,23 +63,23 @@ public class DepartmentService implements IDepartmentService {
     private static Department fetchDepartmentInfo(Department department) {
         LOGGER.info("Preparing department object information...");
         switch (department.getDepartmentId()) {
-            case "D01": department.setDepartmentName("Information Technology");
+            case "DID1": department.setDepartmentName("Information Technology");
                         department.setDepartmentHead("Manoj Jaiswal");
                         department.setDepartmentLogo("https://i.pinimg.com/originals/06/bc/e8/06bce81285badba0c3becd273ca67f95.png");
                         break;
-            case "D02": department.setDepartmentName("Human Resources");
+            case "DID2": department.setDepartmentName("Human Resources");
                         department.setDepartmentHead("Kirti Kumari");
                         department.setDepartmentLogo("https://t4.ftcdn.net/jpg/04/80/07/65/360_F_480076596_9kBMBjheEMPoR422SJp0olzqMHuthBtu.jpg");
                         break;
-            case "D03": department.setDepartmentName("Accounts and Finance");
+            case "DID3": department.setDepartmentName("Accounts and Finance");
                         department.setDepartmentHead("Ankush Jha");
                         department.setDepartmentLogo("https://png.pngtree.com/element_our/sm/20180417/sm_5ad5dd92336fd.png");
                         break;
-            case "D04": department.setDepartmentName("Transport");
+            case "DID4": department.setDepartmentName("Transport");
                         department.setDepartmentHead("Gaurav Sharma");
                         department.setDepartmentLogo("https://png.pngtree.com/png-vector/20191129/ourmid/pngtree-fast-delivery-icon-delivery-icon-png-image_2047531.jpg");
                         break;
-            case "D05": department.setDepartmentName("Admin");
+            case "DID5": department.setDepartmentName("Admin");
                         department.setDepartmentHead("Praful Kumar");
                         department.setDepartmentLogo("https://static.vecteezy.com/system/resources/previews/020/429/953/non_2x/admin-icon-vector.jpg");
                         break;
