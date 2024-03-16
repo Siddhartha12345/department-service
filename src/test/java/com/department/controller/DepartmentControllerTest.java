@@ -1,5 +1,6 @@
 package com.department.controller;
 
+import com.department.config.DepartmentIdSequenceGenerator;
 import com.department.constant.DepartmentTestConstant;
 import com.department.entity.Department;
 import com.department.repository.DepartmentRepository;
@@ -38,11 +39,14 @@ public class DepartmentControllerTest {
     @MockBean
     private DepartmentRepository departmentRepository;
 
+    @MockBean
+    private DepartmentIdSequenceGenerator departmentIdSequenceGenerator;
+
     // GET /department
     @Test
     @DisplayName("Test to retrieve department list successfully")
     public void testGet_FetchDepartmentList() throws Exception {
-        Department department = Department.builder().employeeId("E00001").departmentId("D01").departmentName("IT").departmentHead("Test Name").departmentLogo("abcde").build();
+        Department department = Department.builder().departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("abcde").build();
         Mockito.when(departmentRepository.findAll()).thenReturn(Arrays.asList(department));
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_LIST_ENDPOINT)
                         .accept(MediaType.APPLICATION_JSON))
@@ -64,7 +68,7 @@ public class DepartmentControllerTest {
     @Test
     @DisplayName("Test to create department object successfully")
     public void testPost_CreateDepartment() throws Exception {
-        Department department = Department.builder().employeeId("EID1").departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("abcde").build();
+        Department department = Department.builder().departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("https://test.png").build();
         Mockito.when(departmentRepository.save(Mockito.any(Department.class))).thenReturn(department);
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(DepartmentTestConstant.POST_DEPT_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -74,9 +78,9 @@ public class DepartmentControllerTest {
     }
 
     @Test
-    @DisplayName("Test negative scenario to create department object when invalid Emp Id is passed")
-    public void testPost_ForInvalidEmpId() throws Exception {
-        Department department = Department.builder().employeeId("A01").departmentId("D01").build();
+    @DisplayName("Test negative scenario to create department object when empty department name is passed")
+    public void testPost_ForEmptyDeptName() throws Exception {
+        Department department = Department.builder().departmentId("DID1").departmentHead("Test Name").departmentLogo("https://test.png").build();
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(DepartmentTestConstant.POST_DEPT_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(department)))
@@ -85,9 +89,9 @@ public class DepartmentControllerTest {
     }
 
     @Test
-    @DisplayName("Test negative scenario to create department object when invalid Dept Id is passed")
+    @DisplayName("Test negative scenario to create department object when invalid department logo is passed")
     public void testPost_ForInvalidDeptId() throws Exception {
-        Department department = Department.builder().employeeId("E00001").departmentId("G01").build();
+        Department department = Department.builder().departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("test").build();
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(DepartmentTestConstant.POST_DEPT_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(department)))
@@ -99,8 +103,8 @@ public class DepartmentControllerTest {
     @Test
     @DisplayName("Test success scenario to get department object by Dept ID")
     public void testGetDepartmentByDeptId_Success() throws Exception {
-        Department department = Department.builder().employeeId("EID1").departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("abcde").build();
-        Mockito.when(departmentRepository.findByDepartmentId(Mockito.anyString())).thenReturn(Arrays.asList(department));
+        Department department = Department.builder().departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("https://test.png").build();
+        Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.ofNullable(department));
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_BY_DEPTID_ENDPOINT, "DID1")
                         .accept(MediaType.APPLICATION_JSON))
                         .andReturn();
@@ -119,39 +123,8 @@ public class DepartmentControllerTest {
     @Test
     @DisplayName("Test negative scenario to get department object by passing a non existing Dept ID")
     public void testGetDepartmentByDeptId_DeptNotFound() throws Exception {
-        Mockito.when(departmentRepository.findByDepartmentId(Mockito.anyString())).thenReturn(null);
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_BY_DEPTID_ENDPOINT, "DID3")
-                        .accept(MediaType.APPLICATION_JSON))
-                        .andReturn();
-        Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_NOT_FOUND_CODE);
-    }
-
-    // GET /department/employee/{empId}
-    @Test
-    @DisplayName("Test success scenario to get department object by Emp ID")
-    public void testGetDepartmentByEmpId_Success() throws Exception {
-        Department department = Department.builder().employeeId("EID1").departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("abcde").build();
-        Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.ofNullable(department));
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_BY_EMPID_ENDPOINT, "EID1")
-                        .accept(MediaType.APPLICATION_JSON))
-                        .andReturn();
-        Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_OK_CODE);
-    }
-
-    @Test
-    @DisplayName("Test negative scenario to get department object by passing an invalid Emp ID")
-    public void testGetDepartmentByEmpId_InvalidEmpId() throws Exception {
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_BY_EMPID_ENDPOINT, "A01")
-                        .accept(MediaType.APPLICATION_JSON))
-                        .andReturn();
-        Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_BAD_REQUEST_CODE);
-    }
-
-    @Test
-    @DisplayName("Test negative scenario to get department object by passing a non existing Emp ID")
-    public void testGetDepartmentByEmpId_DeptNotFound() throws Exception {
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_BY_EMPID_ENDPOINT, "EID8")
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_BY_DEPTID_ENDPOINT, "DID3")
                         .accept(MediaType.APPLICATION_JSON))
                         .andReturn();
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_NOT_FOUND_CODE);
@@ -161,7 +134,7 @@ public class DepartmentControllerTest {
     @Test
     @DisplayName("Test scenario to update a department object successfully")
     public void testPut_UpdateDeptSuccessfully() throws Exception {
-        Department department = Department.builder().employeeId("EID1").departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("abcde").build();
+        Department department = Department.builder().departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("https://test.png").build();
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.of(department));
         Mockito.when(departmentRepository.save(Mockito.any(Department.class))).thenReturn(department);
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put(DepartmentTestConstant.PUT_DEPT_ENDPOINT)
@@ -174,7 +147,7 @@ public class DepartmentControllerTest {
     @Test
     @DisplayName("Test negative scenario for update department where object does not exist in DB")
     public void testPut_UpdateDeptFailure() throws Exception {
-        Department department = Department.builder().employeeId("EID1").departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("abcde").build();
+        Department department = Department.builder().departmentId("DID9").departmentName("IT").departmentHead("Test Name").departmentLogo("https://test.png").build();
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put(DepartmentTestConstant.PUT_DEPT_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -187,10 +160,10 @@ public class DepartmentControllerTest {
     @Test
     @DisplayName("Test scenario to delete a department object successfully")
     public void testDel_DeleteDeptSuccessfully() throws Exception {
-        Department department = Department.builder().employeeId("EID1").departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("abcde").build();
+        Department department = Department.builder().departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("https://test.png").build();
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.of(department));
         Mockito.doNothing().when(departmentRepository).deleteById(Mockito.anyString());
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.delete(DepartmentTestConstant.DELETE_DEPT_ENDPOINT, "EID1"))
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.delete(DepartmentTestConstant.DELETE_DEPT_ENDPOINT, "DID1"))
                                     .andReturn();
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_OK_CODE);
     }
@@ -199,7 +172,7 @@ public class DepartmentControllerTest {
     @DisplayName("Test negative scenario to delete a department object where employee ID does not exist")
     public void testDel_DeleteDeptFailure() throws Exception {
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.delete(DepartmentTestConstant.DELETE_DEPT_ENDPOINT, "EID1"))
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.delete(DepartmentTestConstant.DELETE_DEPT_ENDPOINT, "DID1"))
                                     .andReturn();
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_NOT_FOUND_CODE);
     }
