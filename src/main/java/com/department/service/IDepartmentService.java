@@ -8,13 +8,11 @@ public interface IDepartmentService {
 
     List<Department> getDepartments();
 
-    List<Department> getDepartmentsByDeptId(String deptId);
-
-    Department getDepartmentByEmployeeId(String empId);
+    Department getDepartmentByDeptId(String deptId);
 
     Department createDepartment(Department department);
 
     Department updateDepartment(Department department);
 
-    void deleteDepartment(String empId);
+    void deleteDepartment(String deptId);
 }

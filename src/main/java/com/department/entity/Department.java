@@ -18,17 +18,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Department {
 
     @Id
-    @NotEmpty(message = DepartmentConstant.EMP_ID_MSG)
-    @Pattern(regexp = DepartmentConstant.EMP_ID_REGEXP, message = DepartmentConstant.EMP_ID_REGEX_MSG)
-    private String employeeId;
-
-    @NotEmpty(message = DepartmentConstant.DEPT_ID_MSG)
-    @Pattern(regexp = DepartmentConstant.DEPT_ID_REGEXP, message = DepartmentConstant.DEPT_ID_REGEX_MSG)
     private String departmentId;
 
+    @NotEmpty(message = DepartmentConstant.DEPT_NAME_MSG)
     private String departmentName;
 
+    @NotEmpty(message = DepartmentConstant.DEPT_HEAD_MSG)
     private String departmentHead;
 
+    @Pattern(regexp = DepartmentConstant.DEPT_LOGO_REGEXP, message = DepartmentConstant.DEPT_LOGO_REGEXP_MSG)
     private String departmentLogo;
 }

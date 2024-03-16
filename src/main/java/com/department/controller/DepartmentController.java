@@ -34,12 +34,12 @@ public class DepartmentController {
     }
 
     @GetMapping("/department/{deptId}")
-    public ResponseEntity<List<Department>> getDepartment(@Pattern(regexp = DepartmentConstant.DEPT_ID_REGEXP, message = DepartmentConstant.DEPT_ID_REGEX_MSG)
+    public ResponseEntity<Department> getDepartment(@Pattern(regexp = DepartmentConstant.DEPT_ID_REGEXP, message = DepartmentConstant.DEPT_ID_REGEX_MSG)
                                                     @PathVariable String deptId) {
         LOGGER.info("Execution started for fetching department object based on Dept ID");
-        List<Department> departmentList = departmentService.getDepartmentsByDeptId(deptId);
-        LOGGER.info("Department object fetched successfully: {}", departmentList);
-        return new ResponseEntity<>(departmentList, HttpStatus.OK);
+        Department department = departmentService.getDepartmentByDeptId(deptId);
+        LOGGER.info("Department object fetched successfully: {}", department);
+        return new ResponseEntity<>(department, HttpStatus.OK);
     }
 
     @PostMapping("/department")
@@ -50,15 +50,6 @@ public class DepartmentController {
         return new ResponseEntity<>(createdDeparted, HttpStatus.CREATED);
     }
 
-    @GetMapping("/department/employee/{empId}")
-    public ResponseEntity<Department> getDepartmentByEmpId(@Pattern(regexp = DepartmentConstant.EMP_ID_REGEXP, message = DepartmentConstant.EMP_ID_REGEX_MSG)
-                                                           @PathVariable String empId) {
-        LOGGER.info("Execution started for fetching department object...");
-        Department department = departmentService.getDepartmentByEmployeeId(empId);
-        LOGGER.info("Department object fetched successfully: {}", department);
-        return new ResponseEntity<>(department, HttpStatus.OK);
-    }
-
     @PutMapping("/department")
     public ResponseEntity<Department> updateDepartment(@Valid @RequestBody Department department) {
         LOGGER.info("Execution started for updating department object...");
@@ -67,11 +58,11 @@ public class DepartmentController {
         return new ResponseEntity<>(updatedDepartment, HttpStatus.OK);
     }
 
-    @DeleteMapping("/department/{empId}")
-    public ResponseEntity<Void> deleteDepartment(@Pattern(regexp = DepartmentConstant.EMP_ID_REGEXP, message = DepartmentConstant.EMP_ID_REGEX_MSG)
-                                                 @PathVariable String empId) {
+    @DeleteMapping("/department/{deptId}")
+    public ResponseEntity<Void> deleteDepartment(@Pattern(regexp = DepartmentConstant.DEPT_ID_REGEXP, message = DepartmentConstant.DEPT_ID_REGEX_MSG)
+                                                 @PathVariable String deptId) {
         LOGGER.info("Execution started for deleting department object...");
-        departmentService.deleteDepartment(empId);
+        departmentService.deleteDepartment(deptId);
         LOGGER.info("Department object deleted successfully");
         return new ResponseEntity<>(HttpStatus.OK);
     }
