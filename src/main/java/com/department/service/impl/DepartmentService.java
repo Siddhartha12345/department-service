@@ -1,6 +1,7 @@
 package com.department.service.impl;
 
 import com.department.config.DepartmentIdSequenceGenerator;
+import com.department.constant.DepartmentErorEnum;
 import com.department.entity.Department;
 import com.department.exception.ResourceNotFoundException;
 import com.department.repository.DepartmentRepository;
@@ -30,7 +31,7 @@ public class DepartmentService implements IDepartmentService {
         List<Department> departmentList = departmentRepository.findAll();
         if(Objects.isNull(departmentList) || departmentList.size() == 0) {
             LOGGER.error("No Records found in the database!!");
-            throw new ResourceNotFoundException("Department List is empty");
+            throw new ResourceNotFoundException(DepartmentErorEnum.EMPTY_DEPT_LIST.getErrorCode(), DepartmentErorEnum.EMPTY_DEPT_LIST.getErrorMessage());
         }
         LOGGER.info("Fetch operation completed!!");
         return departmentList;
@@ -41,7 +42,7 @@ public class DepartmentService implements IDepartmentService {
         LOGGER.info("Fetching department objects for the given Dept ID: {}", deptId);
         Department department = departmentRepository.findById(deptId).orElseThrow(() -> {
             LOGGER.error("No Record found for the given department ID: {}", deptId);
-            throw new ResourceNotFoundException("Department with given Dept ID is not found on the DB: " + deptId);
+            throw new ResourceNotFoundException(DepartmentErorEnum.DEPT_NOT_FOUND.getErrorCode(), DepartmentErorEnum.DEPT_NOT_FOUND.getErrorMessage());
         });
         LOGGER.info("Fetch operation completed!!");
         return department;
@@ -62,7 +63,7 @@ public class DepartmentService implements IDepartmentService {
         LOGGER.info("Checking whether the department object exists on the DB for the given department ID: {}", department.getDepartmentId());
         departmentRepository.findById(department.getDepartmentId()).orElseThrow(() -> {
             LOGGER.error("No Record found for the given department ID: {}", department.getDepartmentId());
-            throw new ResourceNotFoundException("Department with given department ID is not found on the DB: " + department.getDepartmentId());
+            throw new ResourceNotFoundException(DepartmentErorEnum.DEPT_NOT_FOUND.getErrorCode(), DepartmentErorEnum.DEPT_NOT_FOUND.getErrorMessage());
         });
         LOGGER.info("Record found | Updating department object on the DB for department ID: {}", department.getDepartmentId());
         return departmentRepository.save(department);
@@ -73,7 +74,7 @@ public class DepartmentService implements IDepartmentService {
         LOGGER.info("Checking whether the department object exists on the DB for the given department ID: {}", deptId);
         departmentRepository.findById(deptId).orElseThrow(() -> {
             LOGGER.error("No Records found for the given department ID: {}", deptId);
-            throw new ResourceNotFoundException("Department with given department ID is not found on the DB: " + deptId);
+            throw new ResourceNotFoundException(DepartmentErorEnum.DEPT_NOT_FOUND.getErrorCode(), DepartmentErorEnum.DEPT_NOT_FOUND.getErrorMessage());
         });
         LOGGER.info("Record found | Deleting department object on the DB for department ID: {}", deptId);
         departmentRepository.deleteById(deptId);

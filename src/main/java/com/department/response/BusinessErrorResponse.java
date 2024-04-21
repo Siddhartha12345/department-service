@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
 
 @Builder
 @AllArgsConstructor
@@ -12,7 +11,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class BusinessErrorResponse {
 
-    private HttpStatus status;
+    private String errorCode;
 
-    private String message;
+    private String errorMessage;
 }

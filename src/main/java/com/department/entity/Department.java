@@ -3,6 +3,7 @@ package com.department.entity;
 import com.department.constant.DepartmentConstant;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,4 +29,7 @@ public class Department {
 
     @Pattern(regexp = DepartmentConstant.DEPT_LOGO_REGEXP, message = DepartmentConstant.DEPT_LOGO_REGEXP_MSG)
     private String departmentLogo;
+
+    @Size(min = 8, max = 500, message = DepartmentConstant.DEPT_INFO_MSG)
+    private String departmentInfo;
 }
