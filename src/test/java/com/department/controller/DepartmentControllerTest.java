@@ -4,6 +4,9 @@ import com.department.config.DepartmentIdSequenceGenerator;
 import com.department.constant.DepartmentTestConstant;
 import com.department.entity.Department;
 import com.department.repository.DepartmentRepository;
+import com.department.response.BusinessErrorResponse;
+import com.department.response.ValidationError;
+import com.department.response.ValidationErrorResponse;
 import com.department.service.IDepartmentService;
 import com.department.service.impl.DepartmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,7 +64,9 @@ public class DepartmentControllerTest {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_LIST_ENDPOINT)
                         .accept(MediaType.APPLICATION_JSON))
                 .andReturn();
+        BusinessErrorResponse errorResponse =  objectMapper.readValue(response.getResponse().getContentAsString(), BusinessErrorResponse.class);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_NOT_FOUND_CODE);
+        Assertions.assertEquals(errorResponse.getErrorCode(), DepartmentTestConstant.EMPTY_LIST_ERR_CODE);
     }
 
     // POST /department
@@ -85,7 +90,10 @@ public class DepartmentControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(department)))
                 .andReturn();
+        ValidationErrorResponse validationErrorResponse = objectMapper.readValue(response.getResponse().getContentAsString(), ValidationErrorResponse.class);
+        ValidationError validationError = validationErrorResponse.getValidationErrors().get(0);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_BAD_REQUEST_CODE);
+        Assertions.assertEquals(validationError.getErrorCode(), DepartmentTestConstant.VALIDATION_ERR_CODE);
     }
 
     @Test
@@ -96,7 +104,10 @@ public class DepartmentControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(department)))
                 .andReturn();
+        ValidationErrorResponse validationErrorResponse = objectMapper.readValue(response.getResponse().getContentAsString(), ValidationErrorResponse.class);
+        ValidationError validationError = validationErrorResponse.getValidationErrors().get(0);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_BAD_REQUEST_CODE);
+        Assertions.assertEquals(validationError.getErrorCode(), DepartmentTestConstant.VALIDATION_ERR_CODE);
     }
 
     // GET /department/{deptId}
@@ -117,7 +128,10 @@ public class DepartmentControllerTest {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_BY_DEPTID_ENDPOINT, "A01")
                         .accept(MediaType.APPLICATION_JSON))
                 .andReturn();
+        ValidationErrorResponse validationErrorResponse = objectMapper.readValue(response.getResponse().getContentAsString(), ValidationErrorResponse.class);
+        ValidationError validationError = validationErrorResponse.getValidationErrors().get(0);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_BAD_REQUEST_CODE);
+        Assertions.assertEquals(validationError.getErrorCode(), DepartmentTestConstant.VALIDATION_ERR_CODE);
     }
 
     @Test
@@ -127,7 +141,9 @@ public class DepartmentControllerTest {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_BY_DEPTID_ENDPOINT, "DID3")
                         .accept(MediaType.APPLICATION_JSON))
                         .andReturn();
+        BusinessErrorResponse errorResponse = objectMapper.readValue(response.getResponse().getContentAsString(), BusinessErrorResponse.class);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_NOT_FOUND_CODE);
+        Assertions.assertEquals(errorResponse.getErrorCode(), DepartmentTestConstant.DEPT_NOT_FOUND_ERR_CODE);
     }
 
     // PUT /department
@@ -153,7 +169,9 @@ public class DepartmentControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(department)))
                         .andReturn();
+        BusinessErrorResponse errorResponse = objectMapper.readValue(response.getResponse().getContentAsString(), BusinessErrorResponse.class);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_NOT_FOUND_CODE);
+        Assertions.assertEquals(errorResponse.getErrorCode(), DepartmentTestConstant.DEPT_NOT_FOUND_ERR_CODE);
     }
 
     // DELETE /department/{empId}
@@ -174,6 +192,8 @@ public class DepartmentControllerTest {
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.delete(DepartmentTestConstant.DELETE_DEPT_ENDPOINT, "DID1"))
                                     .andReturn();
+        BusinessErrorResponse errorResponse = objectMapper.readValue(response.getResponse().getContentAsString(), BusinessErrorResponse.class);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_NOT_FOUND_CODE);
+        Assertions.assertEquals(errorResponse.getErrorCode(), DepartmentTestConstant.DEPT_NOT_FOUND_ERR_CODE);
     }
 }

@@ -21,4 +21,10 @@ public class DepartmentTestConstant {
     public static final int HTTP_BAD_REQUEST_CODE = 400;
 
     public static final int HTTP_NOT_FOUND_CODE = 404;
+
+    public static final String EMPTY_LIST_ERR_CODE = "DEP-SVC-001";
+
+    public static final String VALIDATION_ERR_CODE = "DEP-SVC-002";
+
+    public static final String DEPT_NOT_FOUND_ERR_CODE = "DEP-SVC-003";
 }

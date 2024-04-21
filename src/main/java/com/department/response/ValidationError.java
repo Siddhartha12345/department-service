@@ -12,9 +12,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class ValidationError {
 
-    private HttpStatus status;
+    private String errorCode;
 
     private String fieldName;
 
-    private String message;
+    private String errorMessage;
 }

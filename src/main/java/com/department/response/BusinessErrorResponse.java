@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class BusinessErrorResponse {
 
-    private HttpStatus status;
+    private String errorCode;
 
-    private String message;
+    private String errorMessage;
 }
