@@ -27,4 +27,8 @@ public class DepartmentTestConstant {
     public static final String VALIDATION_ERR_CODE = "DEP-SVC-002";
 
     public static final String DEPT_NOT_FOUND_ERR_CODE = "DEP-SVC-003";
+
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+
+    public static final String TYPE_BEARER = "Bearer ";
 }

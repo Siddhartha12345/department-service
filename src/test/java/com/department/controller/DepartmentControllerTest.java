@@ -9,8 +9,12 @@ import com.department.response.ValidationError;
 import com.department.response.ValidationErrorResponse;
 import com.department.service.IDepartmentService;
 import com.department.service.impl.DepartmentService;
+import com.ems.common.entity.User;
+import com.ems.common.feign.AuthenticationFeign;
+import com.ems.common.security.JwtHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -45,6 +51,21 @@ public class DepartmentControllerTest {
     @MockBean
     private DepartmentIdSequenceGenerator departmentIdSequenceGenerator;
 
+    @MockBean
+    private AuthenticationFeign authenticationFeign;
+
+    @Autowired
+    private JwtHelper jwtHelper;
+
+    private String jwtToken;
+
+    @BeforeEach
+    public void setup() {
+        User user = User.builder().email("john.doe@example.com").password("john123").build();
+        Mockito.when(authenticationFeign.loadUserByUsername(Mockito.anyString())).thenReturn(new ResponseEntity<>(user, HttpStatus.OK));
+        jwtToken = jwtHelper.generateToken(user);
+    }
+
     // GET /department
     @Test
     @DisplayName("Test to retrieve department list successfully")
@@ -52,6 +73,7 @@ public class DepartmentControllerTest {
         Department department = Department.builder().departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("abcde").build();
         Mockito.when(departmentRepository.findAll()).thenReturn(Arrays.asList(department));
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_LIST_ENDPOINT)
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken)
                         .accept(MediaType.APPLICATION_JSON))
                         .andReturn();
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_OK_CODE);
@@ -62,8 +84,9 @@ public class DepartmentControllerTest {
     public void testGetFetchDepartmentList_Negative() throws Exception {
         Mockito.when(departmentRepository.findAll()).thenReturn(Arrays.asList());
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_LIST_ENDPOINT)
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken)
                         .accept(MediaType.APPLICATION_JSON))
-                .andReturn();
+                        .andReturn();
         BusinessErrorResponse errorResponse =  objectMapper.readValue(response.getResponse().getContentAsString(), BusinessErrorResponse.class);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_NOT_FOUND_CODE);
         Assertions.assertEquals(errorResponse.getErrorCode(), DepartmentTestConstant.EMPTY_LIST_ERR_CODE);
@@ -76,6 +99,7 @@ public class DepartmentControllerTest {
         Department department = Department.builder().departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("https://test.png").build();
         Mockito.when(departmentRepository.save(Mockito.any(Department.class))).thenReturn(department);
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(DepartmentTestConstant.POST_DEPT_ENDPOINT)
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(department)))
                         .andReturn();
@@ -87,9 +111,10 @@ public class DepartmentControllerTest {
     public void testPost_ForEmptyDeptName() throws Exception {
         Department department = Department.builder().departmentId("DID1").departmentHead("Test Name").departmentLogo("https://test.png").build();
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(DepartmentTestConstant.POST_DEPT_ENDPOINT)
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(department)))
-                .andReturn();
+                        .andReturn();
         ValidationErrorResponse validationErrorResponse = objectMapper.readValue(response.getResponse().getContentAsString(), ValidationErrorResponse.class);
         ValidationError validationError = validationErrorResponse.getValidationErrors().get(0);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_BAD_REQUEST_CODE);
@@ -101,9 +126,10 @@ public class DepartmentControllerTest {
     public void testPost_ForInvalidDeptId() throws Exception {
         Department department = Department.builder().departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("test").build();
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post(DepartmentTestConstant.POST_DEPT_ENDPOINT)
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(department)))
-                .andReturn();
+                        .andReturn();
         ValidationErrorResponse validationErrorResponse = objectMapper.readValue(response.getResponse().getContentAsString(), ValidationErrorResponse.class);
         ValidationError validationError = validationErrorResponse.getValidationErrors().get(0);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_BAD_REQUEST_CODE);
@@ -117,6 +143,7 @@ public class DepartmentControllerTest {
         Department department = Department.builder().departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("https://test.png").build();
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.ofNullable(department));
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_BY_DEPTID_ENDPOINT, "DID1")
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken)
                         .accept(MediaType.APPLICATION_JSON))
                         .andReturn();
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_OK_CODE);
@@ -126,8 +153,9 @@ public class DepartmentControllerTest {
     @DisplayName("Test negative scenario to get department object by passing an invalid Dept ID")
     public void testGetDepartmentByDeptId_InvalidDeptId() throws Exception {
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_BY_DEPTID_ENDPOINT, "A01")
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken)
                         .accept(MediaType.APPLICATION_JSON))
-                .andReturn();
+                        .andReturn();
         ValidationErrorResponse validationErrorResponse = objectMapper.readValue(response.getResponse().getContentAsString(), ValidationErrorResponse.class);
         ValidationError validationError = validationErrorResponse.getValidationErrors().get(0);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_BAD_REQUEST_CODE);
@@ -139,6 +167,7 @@ public class DepartmentControllerTest {
     public void testGetDepartmentByDeptId_DeptNotFound() throws Exception {
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.get(DepartmentTestConstant.GET_DEPT_BY_DEPTID_ENDPOINT, "DID3")
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken)
                         .accept(MediaType.APPLICATION_JSON))
                         .andReturn();
         BusinessErrorResponse errorResponse = objectMapper.readValue(response.getResponse().getContentAsString(), BusinessErrorResponse.class);
@@ -154,6 +183,7 @@ public class DepartmentControllerTest {
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.of(department));
         Mockito.when(departmentRepository.save(Mockito.any(Department.class))).thenReturn(department);
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put(DepartmentTestConstant.PUT_DEPT_ENDPOINT)
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(department)))
                         .andReturn();
@@ -166,6 +196,7 @@ public class DepartmentControllerTest {
         Department department = Department.builder().departmentId("DID9").departmentName("IT").departmentHead("Test Name").departmentLogo("https://test.png").build();
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
         MvcResult response = mockMvc.perform(MockMvcRequestBuilders.put(DepartmentTestConstant.PUT_DEPT_ENDPOINT)
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(department)))
                         .andReturn();
@@ -181,8 +212,9 @@ public class DepartmentControllerTest {
         Department department = Department.builder().departmentId("DID1").departmentName("IT").departmentHead("Test Name").departmentLogo("https://test.png").build();
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.of(department));
         Mockito.doNothing().when(departmentRepository).deleteById(Mockito.anyString());
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.delete(DepartmentTestConstant.DELETE_DEPT_ENDPOINT, "DID1"))
-                                    .andReturn();
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.delete(DepartmentTestConstant.DELETE_DEPT_ENDPOINT, "DID1")
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken))
+                        .andReturn();
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_OK_CODE);
     }
 
@@ -190,8 +222,9 @@ public class DepartmentControllerTest {
     @DisplayName("Test negative scenario to delete a department object where employee ID does not exist")
     public void testDel_DeleteDeptFailure() throws Exception {
         Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
-        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.delete(DepartmentTestConstant.DELETE_DEPT_ENDPOINT, "DID1"))
-                                    .andReturn();
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.delete(DepartmentTestConstant.DELETE_DEPT_ENDPOINT, "DID1")
+                        .header(DepartmentTestConstant.AUTHORIZATION_HEADER, DepartmentTestConstant.TYPE_BEARER + jwtToken))
+                        .andReturn();
         BusinessErrorResponse errorResponse = objectMapper.readValue(response.getResponse().getContentAsString(), BusinessErrorResponse.class);
         Assertions.assertEquals(response.getResponse().getStatus(), DepartmentTestConstant.HTTP_NOT_FOUND_CODE);
         Assertions.assertEquals(errorResponse.getErrorCode(), DepartmentTestConstant.DEPT_NOT_FOUND_ERR_CODE);
